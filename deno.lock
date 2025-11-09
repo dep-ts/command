@@ -1,0 +1,16 @@
+{
+  "version": "5",
+  "specifiers": {
+    "jsr:@dep/table@^1.0.1": "1.0.1"
+  },
+  "jsr": {
+    "@dep/table@1.0.1": {
+      "integrity": "f0855dc71b9dc1b2e83930a47c2ac0295739e1a970a5de7135e7eb7f23942745"
+    }
+  },
+  "workspace": {
+    "dependencies": [
+      "jsr:@dep/table@^1.0.1"
+    ]
+  }
+}

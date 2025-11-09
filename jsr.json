@@ -1,0 +1,36 @@
+{
+  "name": "@dep/command",
+  "version": "1.0.0",
+  "description": "A lightweight, type-safe CLI command builder for Deno, Node.js, and browsers.",
+  "exports": "./src/main.ts",
+  "author": {
+    "name": "Estarlin R.",
+    "email": "dev@estarlincito.com",
+    "url": "https://estarlincito.com"
+  },
+  "homepage": "https://github.com/dep-ts/command#readme",
+  "repository": "https://github.com/dep-ts/command",
+  "bugs": "https://github.com/dep-ts/command/issues",
+  "keywords": [
+    "cli",
+    "command",
+    "parser",
+    "arguments",
+    "options",
+    "flags",
+    "type-safe",
+    "typescript",
+    "deno",
+    "node",
+    "subcommands",
+    "help",
+    "version",
+    "variadic",
+    "inline-options"
+  ],
+  "license": "MIT",
+  "publish": {
+    "include": ["src", "LICENSE", "README.md"],
+    "exclude": ["**/tests/**"]
+  }
+}
