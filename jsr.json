@@ -1,7 +1,7 @@
 {
   "name": "@dep/command",
-  "version": "1.0.0",
-  "description": "A lightweight, type-safe CLI command builder for Deno, Node.js, and browsers.",
+  "version": "2.0.0",
+  "description": "A type-safe CLI command builder for Deno and Node.js, enabling easy creation of commands with arguments, options, subcommands, and handlers.",
   "exports": "./src/main.ts",
   "author": {
     "name": "Estarlin R.",

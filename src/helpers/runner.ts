@@ -1,25 +1,30 @@
-import { Command } from '@/core/command.ts';
-import { CommandOption } from '@/core/types.ts';
 import { showHelp } from './help.ts';
 import { $config } from './utils.ts';
+import { parseRuntime } from './parse/index.ts';
+import {
+  CommandArgument,
+  CommandConfig,
+  CommandInput,
+  CommandOption,
+} from '@/core/types.ts';
 
-const input: {
-  args: Record<string, string | string[]>;
-  options: Record<string, string | string[] | boolean>;
-  unparsed: string[];
-} = { args: {}, options: {}, unparsed: [] };
+const input: CommandInput<CommandOption[], CommandArgument[]> = {
+  args: {},
+  options: {},
+  unparsed: [],
+};
 
 const commandNames: string[] = [];
 
-export const runner = async (
-  command: Command<
-    [CommandOption<'help', 'flag'>, CommandOption<'version', 'flag'>],
-    []
-  >,
+export const runner = async <
+  Options extends CommandOption[] = [],
+  Arguments extends CommandArgument[] = []
+>(
+  config: CommandConfig<Options, Arguments>,
   tokens?: string[]
 ) => {
-  const parsed = command.parse(tokens);
-  const { name, handlers, version, subcommands, hidden } = command[$config]();
+  const parsed = parseRuntime(config, tokens);
+  const { name, handlers, version, subcommands, hidden } = config;
 
   commandNames.push(name);
 
@@ -29,7 +34,7 @@ export const runner = async (
 
   // Handle --help flags
   if (parsed.options.help && !hidden.help) {
-    showHelp(command[$config]() as never, commandNames);
+    showHelp(config, commandNames);
     return;
   }
 
@@ -41,7 +46,7 @@ export const runner = async (
 
   // Run global handlers if defined
   for (const handler of handlers) {
-    await handler(input as typeof parsed, command);
+    await handler(input, config);
   }
 
   // Handle subcommands
@@ -54,7 +59,7 @@ export const runner = async (
     );
 
     if (subcommand) {
-      await subcommand.run(parsed.unparsed.slice(1));
+      await runner(subcommand[$config](), parsed.unparsed.slice(1));
       return;
     }
   }

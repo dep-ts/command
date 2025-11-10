@@ -1,16 +1,12 @@
 import { parseCommandOption } from './option.ts';
 
 import { parseCommandArgument } from './argument.ts';
-
+import { type Config } from '@/helpers/utils.ts';
 import { CommandError } from '@/helpers/error.ts';
 
-import {
-  isOption,
-  kebabToCamelCase,
-  isSubcommand,
-  type Config,
-} from '@/helpers/utils.ts';
+import { isOption, kebabToCamelCase, isSubcommand } from '@/helpers/utils.ts';
 import { validateConfig } from '@/helpers/validate/index.ts';
+import { CommandArgument, CommandConfig, CommandOption } from '@/core/types.ts';
 
 export const validateChoices = (
   variant: 'argument' | 'option',
@@ -41,11 +37,15 @@ export interface ParseInput {
   unparsed: string[];
 }
 
-export const parseRuntime = (
-  tokens: string[] = [],
-  config: Config
+export const parseRuntime = <
+  Options extends CommandOption[] = [],
+  Arguments extends CommandArgument[] = []
+>(
+  config: CommandConfig<Options, Arguments>,
+  tokens: string[] = []
 ): ParseInput => {
-  validateConfig(config);
+  const $config = config as Config;
+  validateConfig($config);
 
   const input: ParseInput = {
     args: {},
@@ -70,15 +70,26 @@ export const parseRuntime = (
       const { option, consumed } = parseCommandOption(
         token,
         tokens.slice(tokenIndex),
-        config
+        $config
       );
       Object.assign(input.options, option);
+
+      //Exit early if --help | -h
+      if (!config.hidden.version && ['--version', '-v'].includes(token)) {
+        return input;
+      }
+
+      //Exit early if  --version | -v
+      if (!config.hidden.help && ['--help', '-h'].includes(token)) {
+        return input;
+      }
+
       tokenIndex += consumed;
       continue;
     }
 
     // Subcommands (stop here and pass remainder)
-    if (isSubcommand(token, config.subcommands)) {
+    if (isSubcommand(token, $config.subcommands)) {
       input.unparsed = tokens.slice(tokenIndex);
       break;
     }
@@ -86,7 +97,7 @@ export const parseRuntime = (
     // Positional arguments
     const { argument, consumed } = parseCommandArgument(
       tokens.slice(tokenIndex),
-      config,
+      $config,
       argIndex
     );
     Object.assign(input.args, argument);

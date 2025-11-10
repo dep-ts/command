@@ -1,183 +1,113 @@
-# @deb/command 🛠️
+# @dep/command 🛠️
 
-> A lightweight, type-safe CLI command builder for Deno, Node.js, and browsers.
+> A type-safe CLI command builder for Deno and Node.js, enabling easy creation of commands with arguments, options, subcommands, and handlers.
 
-## [![JSR version](https://jsr.io/badges/@deb/command)](https://jsr.io/@deb/command)
+## [![JSR version](https://jsr.io/badges/@dep/command)](https://jsr.io/@dep/command)
 
 ## Features ✨
 
-- 🧩 **Type-safe options & arguments** – Full TypeScript inference for flags, values, and variadics
-- 🌳 **Nested subcommands** – Build complex CLI hierarchies with ease
-- 🚦 **Smart parsing** – Supports `--flag`, `-f`, `--option=value`, variadic args, and more
-- 📋 **Auto-generated help & version** – Built-in `--help` and `--version` with beautiful formatting
-- ✅ **Validation & defaults** – Enforce required fields, choices, and default values at parse time
-- 🔒 **Zero dependencies** – Pure TypeScript, works everywhere
+- 🔒 Type-safe definitions for arguments and options
+- 📚 Support for nested subcommands and aliases
+- ⚙️ Automatic handling of --help and --version flags
+- ✅ Built-in validation for configurations and inputs
+- 🔄 Variadic arguments and options for flexible parsing
+- 📦 Seamless integration with Deno and Node.js environments
 
 ---
 
 ## Installation 📦
 
 - **Deno**:
+  ```bash
+  deno add jsr:@dep/command
+  ```
+- **Node.js (18+)**:
 
   ```bash
-  deno add jsr:@deb/command
+  npx jsr add @dep/command
   ```
 
-- **Node.js (18+) or Browsers**:
-  ```bash
-  pnpm i jsr:@dep/table
-  ```
   Then import as an ES module:
+
   ```typescript
-  import { Command } from '@deb/command';
+  import { Command } from '@dep/command';
   ```
 
 ---
 
 ## Usage 🎯
 
-### CLI 💻
+### CLI 💻 <!-- if available -->
 
-```ts
-// cli.ts
-import { Command, CommandError } from '@deb/command';
+This package is a library for building CLI tools. Once you've defined your command, you can run it from the command line using Deno or Node.js. For example, save the script below as `mycli.ts` and execute it with `deno run mycli.ts [args]` or `node mycli.js [args]`.
 
-const cli = new Command()
-  .name('my-cli')
-  .description('Does something awesome')
-  .version('2.0.0')
-  .option('--dry-run', {
-    kind: 'flag',
-    shortFlag: '-n',
-    description: 'Don’t execute, just simulate',
-  })
-  .option('--output', {
-    kind: 'value',
-    shortFlag: '-o',
-    description: 'Output file path',
-  })
-  .option('--tags', { kind: 'variadic', description: 'List of tags' })
-  .argument('files', { kind: 'variadic', description: 'Files to process' })
-  .handler(async ({ options, args }) => {
-    console.log('Dry run:', options.dryRun);
-    console.log('Output:', options.output);
-    console.log('Tags:', options.tags);
-    console.log('Files:', args.files);
-  });
-
-try {
-  await clit.run(); // (defaults tokens Deno.args | `process.argv.slice(2)`)
-} catch (err) {
-  if (err instanceof CommandError) {
-    console.error(`\nError: ${err.message}\n`);
-    cmd.help();
-    Deno.exit(1); //or process.exit(1);
-  }
-  throw err;
-}
-```
-
-Run it:
+Example command execution:
 
 ```bash
-deno run -A cli.ts src/*.ts --dry-run -o dist/ --tags build prod
-# → Dry run: true
-# → Output: dist/
-# → Tags: [ 'build', 'prod' ]
-# → Files: [ 'src/index.ts', 'src/utils.ts' ]
+deno run mycli.ts input.txt --output output.txt
 ```
-
-Use `--help`:
-
-```bash
-deno run -A cli.ts --help
-```
-
-```
-Usage: my-cli [files...] [options]
-
-Does something awesome
-
-Arguments:
-  files...         Files to process
-
-Options:
-  --dry-run, -n    Don’t execute, just simulate
-  --output, -o     Output file path
-  --tags           List of tags
-  --help, -h       Show help
-  --version, -v    Show version
-```
-
----
-
-### Subcommands 🌿
-
-```ts
-import { Command, CommandError } from '@deb/command';
-
-const cli = new Command()
-  .name('git')
-  .description('Git-like CLI')
-  .command('commit', 'Record changes')
-  .option('--message', { kind: 'value', shortFlag: '-m' })
-  .option('--all', { kind: 'flag', shortFlag: '-a' })
-  .handler(({ options }) => {
-    console.log('Committing with message:', options.message);
-  })
-  .command('push', 'Push changes')
-  .handler(() => {
-    console.log('Pushing...');
-  });
-
-try {
-  await clit.run(); // (defaults tokens Deno.args | `process.argv.slice(2)`)
-} catch (err) {
-  if (err instanceof CommandError) {
-    console.error(`\nError: ${err.message}\n`);
-    cmd.help();
-    Deno.exit(1); //or process.exit(1);
-  }
-  throw err;
-}
-```
-
-```bash
-deno run -A git.ts commit -m "fix bug" --all
-# → Committing with message: fix bug
-```
-
----
 
 ### API 🧩
 
-```ts
+Use the `Command` class to build and configure your CLI. Here's a basic example:
+
+```typescript
+import { Command } from '@dep/command';
+
 const cmd = new Command()
-  .name('build')
-  .option('--watch', { kind: 'flag' })
-  .argument('entry', { kind: 'value' });
+  .name('mycli')
+  .description('A simple CLI tool example')
+  .version('1.0.0')
+  .argument('input', { description: 'Input file path' })
+  .option('--output', {
+    kind: 'value',
+    description: 'Output file path',
+    shortFlag: '-o',
+  })
+  .handler(({ args, options }) => {
+    console.log('Input file:', args.input);
+    console.log('Output file:', options.output);
+  });
 
-// Parse custom tokens
-const input = cmd.parse(['app.ts', '--watch']); // (defaults tokens Deno.args | `process.argv.slice(2)`)
-console.log(input.options.watch); // true
-console.log(input.args.entry); // "app.ts"
+try {
+  await clit.run(); // (defaults tokens Deno.args | `process.argv.slice(2)`)
+} catch (err) {
+  if (err instanceof CommandError) {
+    console.error(`\nError: ${err.message}\n`);
+    cmd.help();
+    Deno.exit(1); //or process.exit(1);
+  }
+  throw err;
+}
 ```
 
----
+For more advanced usage, including subcommands:
 
-## Advanced Options
+```typescript
+import { Command } from '@dep/command';
 
-```ts
-.option('--mode', {
-  kind: 'value',
-  choices: ['development', 'production'],
-  default: 'development'
-})
-.option('--config', {
-  kind: 'inline', // --config=path
-  optional: true
-})
+const cmd = new Command()
+  .name('mycli')
+  .description('CLI with subcommands')
+  .command('sub', 'Subcommand description')
+  .argument('arg', 'Subcommand argument')
+  .handler(({ args }) => {
+    console.log('Subcommand arg:', args.arg);
+  });
+
+try {
+  await clit.run(); // (defaults tokens Deno.args | `process.argv.slice(2)`)
+} catch (err) {
+  if (err instanceof CommandError) {
+    console.error(`\nError: ${err.message}\n`);
+    cmd.help();
+    Deno.exit(1); //or process.exit(1);
+  }
+  throw err;
+}
 ```
+
+Run with `mycli sub value` to execute the subcommand.
 
 ---
 

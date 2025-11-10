@@ -1,4 +1,5 @@
 import { CommandError } from '@/helpers/error.ts';
+
 import { type Config } from '@/helpers/utils.ts';
 
 const validateOptionFormat = (

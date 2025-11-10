@@ -1,7 +1,13 @@
-import { CommandOptionKind, CommandArgumentKind } from '@/core/types.ts';
+import {
+  CommandOptionKind,
+  CommandArgumentKind,
+  CommandConfig,
+  CommandOption,
+  CommandArgument,
+} from '@/core/types.ts';
 
 import { Text } from '@dep/table';
-import { $config, Config } from './utils.ts';
+import { $config } from './utils.ts';
 
 const formatArgumentName = (
   name: string,
@@ -32,8 +38,16 @@ const formatOptionFlag = (
   return normalizedFlag;
 };
 
-export const showHelp = (
-  { arguments: args, options, subcommands, description }: Config,
+export const showHelp = <
+  Options extends CommandOption[] = [],
+  Arguments extends CommandArgument[] = []
+>(
+  {
+    arguments: args,
+    options,
+    subcommands,
+    description,
+  }: CommandConfig<Options, Arguments>,
   commandNames: string[] = []
 ) => {
   const printUsage = () => {
@@ -96,7 +110,7 @@ export const showHelp = (
         table.add(
           `${normalizedLongFlag}, ${normalizedShortFlag}`,
           normalizedArg,
-          description ?? ''
+          opt.description ?? ''
         );
       });
 
@@ -129,3 +143,4 @@ export const showHelp = (
   printSubcommands();
   console.log('');
 };
+// deno --allow-all test.ts url -h

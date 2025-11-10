@@ -1,24 +1,10 @@
-import {
-  CommandArgument,
-  CommandArgumentKind,
-  CommandConfig,
-  CommandOption,
-} from '@/core/types.ts';
+import { CommandArgument, CommandConfig, CommandOption } from '@/core/types.ts';
 
-export type Config = CommandConfig<
-  (
-    | CommandOption<string, 'value'>
-    | CommandOption<string, 'inline'>
-    | CommandOption<string, 'variadic'>
-    | CommandOption<string, 'flag'>
-  )[],
-  CommandArgument<string, CommandArgumentKind>[]
->;
+export type Config = CommandConfig<CommandOption[], CommandArgument[]>;
 
 export const $config = Symbol('config');
 
 export const isFlag = (token: string) => token.startsWith('-');
-
 export const isInlineOption = (token: string) => token.includes('=');
 
 export const isOption = (token: string) =>
