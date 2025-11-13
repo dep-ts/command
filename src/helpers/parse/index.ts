@@ -7,6 +7,7 @@ import { CommandError } from '@/helpers/error.ts';
 import { isOption, kebabToCamelCase, isSubcommand } from '@/helpers/utils.ts';
 import { validateConfig } from '@/helpers/validate/index.ts';
 import { CommandArgument, CommandConfig, CommandOption } from '@/core/types.ts';
+import { getDefaultTokens } from '@/helpers/token.ts';
 
 export const validateChoices = (
   variant: 'argument' | 'option',
@@ -42,7 +43,7 @@ export const parseRuntime = <
   Arguments extends CommandArgument[] = []
 >(
   config: CommandConfig<Options, Arguments>,
-  tokens: string[] = []
+  tokens: string[] = getDefaultTokens()
 ): ParseInput => {
   const $config = config as Config;
   validateConfig($config);

@@ -1,7 +1,6 @@
 import { showHelp } from '@/helpers/help.ts';
 import { parseRuntime } from '@/helpers/parse/index.ts';
 import { runner } from '@/helpers/runner.ts';
-import { getDefaultTokens } from '@/helpers/token.ts';
 import { CommandBuilder } from './builder.ts';
 
 import type {
@@ -77,29 +76,10 @@ export class Command<
 
   /**
    * Parses the provided tokens (or default CLI arguments) into a typed CommandInput.
-   * Automatically adds --help/-h and --version/-v options unless hidden.
    * @param tokens - Optional array of tokens to parse; defaults to process/Deno args.
    * @returns The parsed CommandInput with typed args, options, and unparsed tokens.
    */
-  parse(
-    tokens: string[] = getDefaultTokens()
-  ): CommandInput<Options, Arguments> {
-    // Auto-add --help / --version unless hidden
-    if (!this[$config]().hidden.help) {
-      this.option('--help', {
-        kind: 'flag',
-        description: `Show help`,
-        shortFlag: '-h',
-      });
-    }
-
-    if (!this[$config]().hidden.version) {
-      this.option('--version', {
-        kind: 'flag',
-        description: `Show version`,
-        shortFlag: '-v',
-      });
-    }
+  parse(tokens?: string[]): CommandInput<Options, Arguments> {
     return parseRuntime(this[$config](), tokens ?? []) as CommandInput<
       Options,
       Arguments
@@ -118,10 +98,27 @@ export class Command<
   /**
    * Runs the command with the provided tokens (or default CLI arguments).
    * Parses input, handles flags like --help/--version, executes handlers, and processes subcommands.
+   * Automatically adds --help/-h and --version/-v options unless hidden.
    * @param tokens - Optional array of tokens to run with; defaults to process/Deno args.
    * @returns A Promise that resolves when the command execution completes.
    */
   async run(tokens?: string[]): Promise<void> {
+    // Auto-add --help / --version unless hidden
+    if (!this[$config]().hidden.help) {
+      this.option('--help', {
+        kind: 'flag',
+        description: `Show help`,
+        shortFlag: '-h',
+      });
+    }
+
+    if (!this[$config]().hidden.version) {
+      this.option('--version', {
+        kind: 'flag',
+        description: `Show version`,
+        shortFlag: '-v',
+      });
+    }
     await runner(this[$config](), tokens);
   }
 }
