@@ -1,16 +1,16 @@
-import { showHelp } from '@/helpers/help.ts';
-import { parseRuntime } from '@/helpers/parse/index.ts';
-import { runner } from '@/helpers/runner.ts';
-import { CommandBuilder } from './builder.ts';
+import { showHelp } from "@/helpers/help.ts";
+import { parseRuntime } from "@/helpers/parse/index.ts";
+import { runner } from "@/helpers/runner.ts";
+import { CommandBuilder } from "./builder.ts";
 
 import type {
   CommandArgument,
+  CommandHideKind,
   CommandInput,
   CommandOption,
-  CommandHideKind,
-} from './types.ts';
+} from "./types.ts";
 
-import { $config } from '@/helpers/utils.ts';
+import { $config } from "@/helpers/utils.ts";
 
 /**
  * The main Command class for defining and executing CLI commands.
@@ -37,8 +37,8 @@ import { $config } from '@/helpers/utils.ts';
  */
 export class Command<
   Options extends CommandOption[] = [],
-  Arguments extends CommandArgument[] = []
-> extends CommandBuilder<Options, Arguments, 'command'> {
+  Arguments extends CommandArgument[] = [],
+> extends CommandBuilder<Options, Arguments, "command"> {
   /**
    * Sets the name of the command.
    * @param name - The name to assign to the command.
@@ -103,22 +103,6 @@ export class Command<
    * @returns A Promise that resolves when the command execution completes.
    */
   async run(tokens?: string[]): Promise<void> {
-    // Auto-add --help / --version unless hidden
-    if (!this[$config]().hidden.help) {
-      this.option('--help', {
-        kind: 'flag',
-        description: `Show help`,
-        shortFlag: '-h',
-      });
-    }
-
-    if (!this[$config]().hidden.version) {
-      this.option('--version', {
-        kind: 'flag',
-        description: `Show version`,
-        shortFlag: '-v',
-      });
-    }
     await runner(this[$config](), tokens);
   }
 }

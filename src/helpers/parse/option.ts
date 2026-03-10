@@ -1,11 +1,11 @@
-import { CommandError } from '@/helpers/error.ts';
+import { CommandError } from "@/helpers/error.ts";
 import {
-  isFlag,
+  type Config,
   handlerVariadic,
+  isFlag,
   isInlineOption,
   kebabToCamelCase,
-  type Config,
-} from '@/helpers/utils.ts';
+} from "@/helpers/utils.ts";
 
 export interface ParsedOption {
   option: Record<string, boolean | string | string[]>;
@@ -15,7 +15,7 @@ export interface ParsedOption {
 export const parseCommandOption = (
   token: string,
   tokens: string[],
-  config: Config
+  config: Config,
 ): ParsedOption => {
   const flagName = kebabToCamelCase(token);
   const optionDefs = config.options;
@@ -51,7 +51,7 @@ export const parseCommandOption = (
   const index = tokens.indexOf(token);
 
   switch (matchedOption.kind) {
-    case 'value': {
+    case "value": {
       if (isFlag(token)) {
         optionValue = tokens[index + 1];
         consumed = 2;
@@ -59,25 +59,25 @@ export const parseCommandOption = (
       break;
     }
 
-    case 'inline': {
+    case "inline": {
       if (isInlineOption(flagName)) {
-        optionValue = flagName.split('=')[1];
+        optionValue = flagName.split("=")[1];
         consumed = 1;
       }
       break;
     }
 
-    case 'variadic': {
+    case "variadic": {
       if (isFlag(token)) {
         optionValue = handlerVariadic(
           tokens.slice(index + 1),
-          config.subcommands
+          config.subcommands,
         );
         consumed = optionValue.length + 1;
       }
       break;
     }
-    case 'flag': {
+    case "flag": {
       if (isFlag(token)) {
         optionValue = true;
         consumed = 1;

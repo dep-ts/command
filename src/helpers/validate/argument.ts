@@ -1,16 +1,17 @@
-import { CommandError } from '@/helpers/error.ts';
-import { type Config } from '@/helpers/utils.ts';
-import { checkNameFormat } from './name.ts';
+import { CommandError } from "@/helpers/error.ts";
+import { type Config } from "@/helpers/utils.ts";
+import { checkNameFormat } from "./name.ts";
 
-export const validateArguments = (args: Config['arguments']) => {
+export const validateArguments = (args: Config["arguments"]) => {
   const argNames = new Set<string>();
   for (const arg of args) {
-    if (!arg.name) throw new CommandError('Argument name is required');
+    if (!arg.name) throw new CommandError("Argument name is required");
 
-    checkNameFormat(arg.name, 'Argument');
+    checkNameFormat(arg.name, "Argument");
 
-    if (argNames.has(arg.name))
+    if (argNames.has(arg.name)) {
       throw new CommandError(`Duplicate argument name "${arg.name}"`);
+    }
 
     argNames.add(arg.name);
 
@@ -19,22 +20,25 @@ export const validateArguments = (args: Config['arguments']) => {
         ? arg.default
         : [arg.default];
 
-      if (!arg.choices.some((choice) => defaultValues.includes(choice)))
+      if (!arg.choices.some((choice) => defaultValues.includes(choice))) {
         throw new CommandError(
-          `Default value "${arg.default}" for argument "${
-            arg.name
-          }" must be one of: ${arg.choices.join(', ')}`
+          `Default value "${arg.default}" for argument "${arg.name}" must be one of: ${
+            arg.choices.join(", ")
+          }`,
         );
+      }
     }
 
-    if (!arg.optional && arg.default)
+    if (!arg.optional && arg.default) {
       throw new CommandError(
-        `Argument "${arg.name}" cannot have a default value if it's required`
+        `Argument "${arg.name}" cannot have a default value if it's required`,
       );
+    }
 
-    if (arg.kind !== 'variadic' && arg.default && Array.isArray(arg.default))
+    if (arg.kind !== "variadic" && arg.default && Array.isArray(arg.default)) {
       throw new CommandError(
-        `Default value for argument "${arg.name}" cannot be an array if variant is value`
+        `Default value for argument "${arg.name}" cannot be an array if variant is value`,
       );
+    }
   }
 };

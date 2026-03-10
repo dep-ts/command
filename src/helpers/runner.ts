@@ -1,12 +1,12 @@
-import { showHelp } from './help.ts';
-import { $config } from './utils.ts';
-import { parseRuntime } from './parse/index.ts';
+import { showHelp } from "./help.ts";
+import { $config } from "./utils.ts";
+import { parseRuntime } from "./parse/index.ts";
 import {
   CommandArgument,
   CommandConfig,
   CommandInput,
   CommandOption,
-} from '@/core/types.ts';
+} from "@/core/types.ts";
 
 const input: CommandInput<CommandOption[], CommandArgument[]> = {
   args: {},
@@ -18,11 +18,39 @@ const commandNames: string[] = [];
 
 export const runner = async <
   Options extends CommandOption[] = [],
-  Arguments extends CommandArgument[] = []
+  Arguments extends CommandArgument[] = [],
 >(
   config: CommandConfig<Options, Arguments>,
-  tokens?: string[]
+  tokens?: string[],
 ) => {
+  // Auto-add --help unless hidden
+  if (
+    !config.hidden.help &&
+    !config.options.some((o) => o.longFlag === "--help")
+  ) {
+    config.options.push({
+      description: "Show help",
+      kind: "flag",
+      longFlag: "--help",
+      optional: true,
+      shortFlag: "-h",
+    });
+  }
+
+  // Auto-add --version unless hidden
+  if (
+    !config.hidden.version &&
+    !config.options.some((o) => o.longFlag === "--version")
+  ) {
+    config.options.push({
+      description: "Show version",
+      kind: "flag",
+      longFlag: "--version",
+      optional: true,
+      shortFlag: "-v",
+    });
+  }
+
   const parsed = parseRuntime(config, tokens);
   const { name, handlers, version, subcommands, hidden } = config;
 
@@ -55,7 +83,7 @@ export const runner = async <
     const subcommand = subcommands.find(
       (cmd) =>
         cmd[$config]().name === subName ||
-        cmd[$config]().aliases.includes(subName)
+        cmd[$config]().aliases.includes(subName),
     );
 
     if (subcommand) {

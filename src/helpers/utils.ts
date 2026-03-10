@@ -1,18 +1,18 @@
-import { CommandArgument, CommandConfig, CommandOption } from '@/core/types.ts';
+import { CommandArgument, CommandConfig, CommandOption } from "@/core/types.ts";
 
 export type Config = CommandConfig<CommandOption[], CommandArgument[]>;
 
-export const $config = Symbol('config');
+export const $config = Symbol("config");
 
-export const isFlag = (token: string) => token.startsWith('-');
-export const isInlineOption = (token: string) => token.includes('=');
+export const isFlag = (token: string) => token.startsWith("-");
+export const isInlineOption = (token: string) => token.includes("=");
 
 export const isOption = (token: string) =>
   isFlag(token) || isInlineOption(token);
 
 export const isSubcommand = (
   token: string,
-  subcommands: Config['subcommands']
+  subcommands: Config["subcommands"],
 ) =>
   subcommands.some((cmd) => {
     const config = cmd[$config]();
@@ -23,13 +23,13 @@ export const isSubcommand = (
 export const kebabToCamelCase = (token: string) =>
   token
     .trim()
-    .replace(/^-+/, '')
+    .replace(/^-+/, "")
     .replace(/-./g, (match) => match.charAt(1).toUpperCase())
-    .replaceAll('-', '');
+    .replaceAll("-", "");
 
 export const handlerVariadic = (
   tokens: string[],
-  subcommand: Config['subcommands']
+  subcommand: Config["subcommands"],
 ) => {
   const collectedValues: string[] = [];
 

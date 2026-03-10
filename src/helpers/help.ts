@@ -1,21 +1,21 @@
 import {
-  CommandOptionKind,
+  CommandArgument,
   CommandArgumentKind,
   CommandConfig,
   CommandOption,
-  CommandArgument,
-} from '@/core/types.ts';
+  CommandOptionKind,
+} from "@/core/types.ts";
 
-import { Text } from '@dep/table';
-import { $config } from './utils.ts';
+import { Text } from "@dep/table";
+import { $config } from "./utils.ts";
 
 const formatArgumentName = (
   name: string,
   kind: CommandArgumentKind,
-  optional = false
+  optional = false,
 ): string => {
-  const baseName = name.replace(/^--/, '');
-  const suffix = kind === 'variadic' ? '...' : '';
+  const baseName = name.replace(/^--/, "");
+  const suffix = kind === "variadic" ? "..." : "";
   const format = `${baseName}${suffix}`;
   return optional ? `[${format}]` : `<${format}>`;
 };
@@ -23,15 +23,15 @@ const formatArgumentName = (
 const formatOptionFlag = (
   flag: string,
   kind: CommandOptionKind,
-  optional = false
+  optional = false,
 ): string => {
-  const normalizedFlag = flag.startsWith('-')
+  const normalizedFlag = flag.startsWith("-")
     ? flag
     : flag.length === 1
     ? `-${flag}`
     : `--${flag}`;
 
-  if (kind === 'inline') {
+  if (kind === "inline") {
     return optional ? `${normalizedFlag}[=value]` : `${normalizedFlag}=value`;
   }
 
@@ -40,7 +40,7 @@ const formatOptionFlag = (
 
 export const showHelp = <
   Options extends CommandOption[] = [],
-  Arguments extends CommandArgument[] = []
+  Arguments extends CommandArgument[] = [],
 >(
   {
     arguments: args,
@@ -48,21 +48,21 @@ export const showHelp = <
     subcommands,
     description,
   }: CommandConfig<Options, Arguments>,
-  commandNames: string[] = []
+  commandNames: string[] = [],
 ) => {
   const printUsage = () => {
-    const commandsStr = subcommands.length > 0 ? '[command]' : '';
-    const optionsStr = options.length > 0 ? '[options]' : '';
+    const commandsStr = subcommands.length > 0 ? "[command]" : "";
+    const optionsStr = options.length > 0 ? "[options]" : "";
     const argsStr = args
       .map(({ name, optional, kind }) =>
         formatArgumentName(name, kind, optional)
       )
-      .join(' ');
+      .join(" ");
 
     console.log(
-      `\nUsage: ${commandNames.join(' ')}${argsStr ? ` ${argsStr}` : ''}${
-        optionsStr ? ` ${optionsStr}` : ''
-      }${commandsStr ? ` ${commandsStr}` : ''}`
+      `\nUsage: ${commandNames.join(" ")}${argsStr ? ` ${argsStr}` : ""}${
+        optionsStr ? ` ${optionsStr}` : ""
+      }${commandsStr ? ` ${commandsStr}` : ""}`,
     );
   };
 
@@ -74,12 +74,12 @@ export const showHelp = <
 
   const printArguments = () => {
     if (args.length > 0) {
-      console.log('\nArguments:');
+      console.log("\nArguments:");
       args.forEach(({ name, description, kind, optional }) => {
         console.log(
           `  ${formatArgumentName(name, kind, optional).padEnd(15)} ${
-            description ?? ''
-          }`
+            description ?? ""
+          }`,
         );
       });
     }
@@ -87,30 +87,28 @@ export const showHelp = <
 
   const printOptions = () => {
     if (options.length > 0) {
-      console.log('\nOptions:');
+      console.log("\nOptions:");
       const table = new Text();
 
       options.forEach((opt) => {
-        const normalizedLongFlag =
-          opt.kind === 'flag'
-            ? formatOptionFlag(opt.longFlag, opt.kind)
-            : formatOptionFlag(opt.longFlag, opt.kind, opt.optional);
+        const normalizedLongFlag = opt.kind === "flag"
+          ? formatOptionFlag(opt.longFlag, opt.kind)
+          : formatOptionFlag(opt.longFlag, opt.kind, opt.optional);
 
         const normalizedShortFlag = opt.shortFlag
-          ? opt.kind === 'flag'
+          ? opt.kind === "flag"
             ? formatOptionFlag(opt.shortFlag, opt.kind)
             : formatOptionFlag(opt.shortFlag, opt.kind, opt.optional)
-          : '';
+          : "";
 
-        const normalizedArg =
-          opt.kind === 'value' || opt.kind === 'variadic'
-            ? formatArgumentName(opt.longFlag, opt.kind, opt.optional)
-            : '';
+        const normalizedArg = opt.kind === "value" || opt.kind === "variadic"
+          ? formatArgumentName(opt.longFlag, opt.kind, opt.optional)
+          : "";
 
         table.add(
           `${normalizedLongFlag}, ${normalizedShortFlag}`,
           normalizedArg,
-          opt.description ?? ''
+          opt.description ?? "",
         );
       });
 
@@ -121,16 +119,15 @@ export const showHelp = <
 
   const printSubcommands = () => {
     if (subcommands.length > 0) {
-      console.log('\nCommands:');
+      console.log("\nCommands:");
       subcommands.forEach((cmd) => {
         const cmdCtx = cmd[$config]();
 
-        const aliases =
-          cmdCtx.aliases.length > 0
-            ? ` (aliases: ${cmdCtx.aliases.join(', ')})`
-            : '';
+        const aliases = cmdCtx.aliases.length > 0
+          ? ` (aliases: ${cmdCtx.aliases.join(", ")})`
+          : "";
         console.log(
-          `  ${cmdCtx.name.padEnd(15)} ${cmdCtx.description}${aliases}`
+          `  ${cmdCtx.name.padEnd(15)} ${cmdCtx.description}${aliases}`,
         );
       });
     }
@@ -141,6 +138,6 @@ export const showHelp = <
   printArguments();
   printOptions();
   printSubcommands();
-  console.log('');
+  console.log("");
 };
 // deno --allow-all test.ts url -h

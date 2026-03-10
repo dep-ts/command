@@ -1,10 +1,10 @@
-import { CommandError } from '@/helpers/error.ts';
+import { CommandError } from "@/helpers/error.ts";
 
 import {
-  kebabToCamelCase,
-  handlerVariadic,
   type Config,
-} from '@/helpers/utils.ts';
+  handlerVariadic,
+  kebabToCamelCase,
+} from "@/helpers/utils.ts";
 
 export interface ParsedArgument {
   argument: Record<string, string | string[]>;
@@ -14,7 +14,7 @@ export interface ParsedArgument {
 export const parseCommandArgument = (
   tokens: string[],
   config: Config,
-  argIndex: number
+  argIndex: number,
 ): ParsedArgument => {
   const argDef = config.arguments[argIndex];
   const token = tokens[0];
@@ -27,10 +27,10 @@ export const parseCommandArgument = (
   let argumentValue: string | string[];
 
   switch (kind) {
-    case 'value':
+    case "value":
       argumentValue = token;
       break;
-    case 'variadic': {
+    case "variadic": {
       argumentValue = handlerVariadic(tokens, config.subcommands);
       break;
     }

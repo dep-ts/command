@@ -1,4 +1,4 @@
-import { Command } from './command.ts';
+import { Command } from "./command.ts";
 import type {
   CommandArgument,
   CommandArgumentKind,
@@ -6,9 +6,9 @@ import type {
   CommandHandler,
   CommandOption,
   CommandOptionKind,
-} from './types.ts';
+} from "./types.ts";
 
-import { $config } from '@/helpers/utils.ts';
+import { $config } from "@/helpers/utils.ts";
 
 /**
  * Internal interface for typing the return values of builder methods.
@@ -18,7 +18,7 @@ import { $config } from '@/helpers/utils.ts';
  */
 export interface With<
   Options extends CommandOption[] = [],
-  Arguments extends CommandArgument[] = []
+  Arguments extends CommandArgument[] = [],
 > {
   /** The builder instance with updated types. */
   builder: CommandBuilder<Options, Arguments>;
@@ -36,16 +36,16 @@ export interface With<
 export class CommandBuilder<
   Options extends CommandOption[] = [],
   Arguments extends CommandArgument[] = [],
-  Kind extends 'builder' | 'command' = 'builder'
+  Kind extends "builder" | "command" = "builder",
 > {
   /**
    * Internal configuration object for the command.
    * @private
    */
   #config: CommandConfig<Options, Arguments> = {
-    name: '',
-    description: '',
-    version: '1.0.0',
+    name: "",
+    description: "",
+    version: "1.0.0",
     hidden: {
       help: false,
       version: false,
@@ -86,15 +86,15 @@ export class CommandBuilder<
    */
   argument<N extends string, K extends CommandArgumentKind, O extends boolean>(
     name: N,
-    config?: string | Partial<Omit<CommandArgument<N, K, O>, 'name'>>
+    config?: string | Partial<Omit<CommandArgument<N, K, O>, "name">>,
   ): With<Options, [...Arguments, CommandArgument<N, K, O>]>[Kind] {
-    const argument: CommandArgument<N, 'value', false> = {
+    const argument: CommandArgument<N, "value", false> = {
       name,
-      kind: 'value',
+      kind: "value",
       optional: false,
     };
 
-    if (typeof config === 'string') {
+    if (typeof config === "string") {
       Object.assign(argument, { description: config });
     } else if (config) {
       Object.assign(argument, config);
@@ -119,19 +119,18 @@ export class CommandBuilder<
    */
   option<L extends string, K extends CommandOptionKind, O extends boolean>(
     longFlag: L,
-    config?: K extends 'flag'
-      ? Partial<
-          Pick<CommandOption<L, K, O>, 'kind' | 'shortFlag' | 'description'>
-        >
-      : Partial<Omit<CommandOption<L, K, O>, 'shortFlag'>>
+    config?: K extends "flag" ? Partial<
+        Pick<CommandOption<L, K, O>, "kind" | "shortFlag" | "description">
+      >
+      : Partial<Omit<CommandOption<L, K, O>, "shortFlag">>,
   ): With<[...Options, CommandOption<L, K, O>], Arguments>[Kind] {
-    const option: CommandOption<L, 'value', false> = {
+    const option: CommandOption<L, "value", false> = {
       longFlag,
-      kind: 'value',
+      kind: "value",
       optional: false,
     };
 
-    if (typeof config === 'string') {
+    if (typeof config === "string") {
       Object.assign(option, { description: config });
     } else if (config) {
       Object.assign(option, config);
@@ -161,7 +160,7 @@ export class CommandBuilder<
    * @param description - Optional description for the subcommand.
    * @returns A new CommandBuilder for the subcommand, allowing further configuration.
    */
-  command(name: string, description = ''): CommandBuilder<Options, Arguments> {
+  command(name: string, description = ""): CommandBuilder<Options, Arguments> {
     const cmd = new CommandBuilder<Options, Arguments>();
     cmd[$config]().name = name;
     cmd[$config]().description = description;

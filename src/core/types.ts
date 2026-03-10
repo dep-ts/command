@@ -1,11 +1,11 @@
-import { CommandBuilder } from './builder.ts';
+import { CommandBuilder } from "./builder.ts";
 
 /**
  * Defines the possible kinds for command arguments.
  * - 'value': A single positional argument value.
  * - 'variadic': Multiple positional argument values (e.g., ...args).
  */
-export type CommandArgumentKind = 'value' | 'variadic';
+export type CommandArgumentKind = "value" | "variadic";
 
 /**
  * Defines the possible kinds for command options.
@@ -14,14 +14,14 @@ export type CommandArgumentKind = 'value' | 'variadic';
  * - 'inline': An option with an inline value (e.g., --output=file.txt).
  * - 'variadic': An option that takes multiple values (e.g., --include file1 file2).
  */
-export type CommandOptionKind = 'flag' | 'value' | 'inline' | 'variadic';
+export type CommandOptionKind = "flag" | "value" | "inline" | "variadic";
 
 /**
  * Defines the kinds of features that can be hidden in the command.
  * - 'help': Hides the help functionality.
  * - 'version': Hides the version functionality.
  */
-export type CommandHideKind = 'help' | 'version';
+export type CommandHideKind = "help" | "version";
 
 /**
  * Represents the structure of a command option.
@@ -32,7 +32,7 @@ export type CommandHideKind = 'help' | 'version';
 export type CommandOption<
   L extends string = string,
   K extends CommandOptionKind = CommandOptionKind,
-  O extends boolean = boolean
+  O extends boolean = boolean,
 > = {
   /** The long flag for the option (e.g., '--output'). Required. */
   longFlag: L;
@@ -43,7 +43,7 @@ export type CommandOption<
   /** A description of the option for help output. */
   description?: string;
   /** Default value for the option. For 'variadic', it's an array; otherwise, a string. */
-  default?: K extends 'variadic' ? string[] : string;
+  default?: K extends "variadic" ? string[] : string;
   /** Allowed choices for the option value. If set, input must match one of these. */
   choices?: string[];
   /** Whether the option is optional (true) or required (false). */
@@ -59,14 +59,14 @@ export type CommandOption<
 export interface CommandArgument<
   N extends string = string,
   K extends CommandArgumentKind = CommandArgumentKind,
-  O extends boolean = boolean
+  O extends boolean = boolean,
 > {
   /** The name of the argument (used in help and parsing). Required. */
   name: N;
   /** A description of the argument for help output. */
   description?: string;
   /** Default value for the argument. For 'variadic', it's an array; otherwise, a string. */
-  default?: K extends 'variadic' ? string[] : string;
+  default?: K extends "variadic" ? string[] : string;
   /** Allowed choices for the argument value. If set, input must match one of these. */
   choices?: string[];
   /** Whether the argument is optional (true) or required (false). */
@@ -83,7 +83,7 @@ export interface CommandArgument<
 export type KebabToCamelCase<S extends string> = S extends `--${infer Rest}`
   ? KebabToCamelCase<Rest>
   : S extends `${infer First}-${infer Rest}`
-  ? `${First}${Capitalize<KebabToCamelCase<Rest>>}`
+    ? `${First}${Capitalize<KebabToCamelCase<Rest>>}`
   : S;
 
 /**
@@ -93,32 +93,29 @@ export type KebabToCamelCase<S extends string> = S extends `--${infer Rest}`
  */
 export type CommandInput<
   Options extends CommandOption[] = CommandOption[],
-  Arguments extends CommandArgument[] = CommandArgument[]
+  Arguments extends CommandArgument[] = CommandArgument[],
 > = {
   /** Parsed positional arguments, mapped to camelCase keys from their names. */
   args: {
-    [K in Arguments[number]['name'] as KebabToCamelCase<K>]: Extract<
+    [K in Arguments[number]["name"] as KebabToCamelCase<K>]: Extract<
       Arguments[number],
       { name: K }
-    > extends { kind: 'variadic' }
-      ? string[]
-      : Extract<Arguments[number], { name: K }>['optional'] extends true
-      ? string | undefined
+    > extends { kind: "variadic" } ? string[]
+      : Extract<Arguments[number], { name: K }>["optional"] extends true
+        ? string | undefined
       : string;
   };
   /** Parsed options, mapped to camelCase keys from their longFlags. */
   options: {
-    [K in Options[number]['longFlag'] as KebabToCamelCase<K>]: Extract<
+    [K in Options[number]["longFlag"] as KebabToCamelCase<K>]: Extract<
       Options[number],
       { longFlag: K }
-    > extends { kind: 'flag' }
-      ? boolean
+    > extends { kind: "flag" } ? boolean
       : Extract<Options[number], { longFlag: K }> extends {
-          kind: 'variadic';
-        }
-      ? string[]
-      : Extract<Options[number], { longFlag: K }>['optional'] extends true
-      ? string | undefined
+        kind: "variadic";
+      } ? string[]
+      : Extract<Options[number], { longFlag: K }>["optional"] extends true
+        ? string | undefined
       : string;
   };
   /** Any remaining unparsed tokens after parsing arguments and options. */
@@ -132,12 +129,12 @@ export type CommandInput<
  */
 export type CommandHandler<
   Options extends CommandOption[] = CommandOption[],
-  Arguments extends CommandArgument[] = CommandArgument[]
+  Arguments extends CommandArgument[] = CommandArgument[],
 > = (
   /** The parsed CLI input. */
   input: CommandInput<Options, Arguments>,
   /** The full command configuration. */
-  config: CommandConfig<Options, Arguments>
+  config: CommandConfig<Options, Arguments>,
 ) => void | Promise<void>;
 
 /**
@@ -147,7 +144,7 @@ export type CommandHandler<
  */
 export interface CommandConfig<
   Options extends CommandOption[] = CommandOption[],
-  Arguments extends CommandArgument[] = CommandArgument[]
+  Arguments extends CommandArgument[] = CommandArgument[],
 > {
   /** The name of the command. */
   name: string;

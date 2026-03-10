@@ -1,21 +1,21 @@
-import { parseCommandOption } from './option.ts';
+import { parseCommandOption } from "./option.ts";
 
-import { parseCommandArgument } from './argument.ts';
-import { type Config } from '@/helpers/utils.ts';
-import { CommandError } from '@/helpers/error.ts';
+import { parseCommandArgument } from "./argument.ts";
+import { type Config } from "@/helpers/utils.ts";
+import { CommandError } from "@/helpers/error.ts";
 
-import { isOption, kebabToCamelCase, isSubcommand } from '@/helpers/utils.ts';
-import { validateConfig } from '@/helpers/validate/index.ts';
-import { CommandArgument, CommandConfig, CommandOption } from '@/core/types.ts';
-import { getDefaultTokens } from '@/helpers/token.ts';
+import { isOption, isSubcommand, kebabToCamelCase } from "@/helpers/utils.ts";
+import { validateConfig } from "@/helpers/validate/index.ts";
+import { CommandArgument, CommandConfig, CommandOption } from "@/core/types.ts";
+import { getDefaultTokens } from "@/helpers/token.ts";
 
 export const validateChoices = (
-  variant: 'argument' | 'option',
+  variant: "argument" | "option",
   opt: {
     value: string | string[];
     name: string;
     choices: string[];
-  }
+  },
 ) => {
   const { value, name, choices } = opt;
 
@@ -24,9 +24,11 @@ export const validateChoices = (
   for (const value of valuesToCheck) {
     if (!choices.includes(value)) {
       throw new CommandError(
-        `Value "${value}" for ${variant} "${name}" must be one of: ${choices.join(
-          ', '
-        )}`
+        `Value "${value}" for ${variant} "${name}" must be one of: ${
+          choices.join(
+            ", ",
+          )
+        }`,
       );
     }
   }
@@ -40,10 +42,10 @@ export interface ParseInput {
 
 export const parseRuntime = <
   Options extends CommandOption[] = [],
-  Arguments extends CommandArgument[] = []
+  Arguments extends CommandArgument[] = [],
 >(
   config: CommandConfig<Options, Arguments>,
-  tokens: string[] = getDefaultTokens()
+  tokens: string[] = getDefaultTokens(),
 ): ParseInput => {
   const $config = config as Config;
   validateConfig($config);
@@ -61,7 +63,7 @@ export const parseRuntime = <
     const token = tokens[tokenIndex];
 
     // '--' separator → stop parsing
-    if (token === '--') {
+    if (token === "--") {
       input.unparsed = tokens.slice(tokenIndex + 1);
       break;
     }
@@ -71,17 +73,17 @@ export const parseRuntime = <
       const { option, consumed } = parseCommandOption(
         token,
         tokens.slice(tokenIndex),
-        $config
+        $config,
       );
       Object.assign(input.options, option);
 
       //Exit early if --help | -h
-      if (!config.hidden.version && ['--version', '-v'].includes(token)) {
+      if (!config.hidden.version && ["--version", "-v"].includes(token)) {
         return input;
       }
 
       //Exit early if  --version | -v
-      if (!config.hidden.help && ['--help', '-h'].includes(token)) {
+      if (!config.hidden.help && ["--help", "-h"].includes(token)) {
         return input;
       }
 
@@ -99,7 +101,7 @@ export const parseRuntime = <
     const { argument, consumed } = parseCommandArgument(
       tokens.slice(tokenIndex),
       $config,
-      argIndex
+      argIndex,
     );
     Object.assign(input.args, argument);
     tokenIndex += consumed;
@@ -109,16 +111,16 @@ export const parseRuntime = <
   // Validate choices, required options and apply defaults
   for (const option of config.options) {
     if (
-      option.kind === 'inline' ||
-      option.kind === 'variadic' ||
-      option.kind === 'value'
+      option.kind === "inline" ||
+      option.kind === "variadic" ||
+      option.kind === "value"
     ) {
       const key = kebabToCamelCase(option.longFlag);
       const optionValue = input.options[key];
 
       if (!input.options[key] && !option.optional) {
         throw new CommandError(
-          `Required option "${option.longFlag}" is missing`
+          `Required option "${option.longFlag}" is missing`,
         );
       }
 
@@ -131,8 +133,8 @@ export const parseRuntime = <
         }
       }
 
-      if (option.choices && typeof optionValue !== 'boolean') {
-        validateChoices('option', {
+      if (option.choices && typeof optionValue !== "boolean") {
+        validateChoices("option", {
           choices: option.choices,
           value: optionValue,
           name: option.longFlag,
@@ -142,12 +144,14 @@ export const parseRuntime = <
   }
 
   // Validate choices,required arguments and apply defaults
-  for (const {
-    name,
-    optional,
-    default: defaultValue,
-    choices,
-  } of config.arguments) {
+  for (
+    const {
+      name,
+      optional,
+      default: defaultValue,
+      choices,
+    } of config.arguments
+  ) {
     const key = kebabToCamelCase(name);
     const argValue = input.args[key];
     if (!argValue && !optional) {
@@ -161,7 +165,7 @@ export const parseRuntime = <
     }
 
     if (choices) {
-      validateChoices('argument', { choices, value: argValue, name });
+      validateChoices("argument", { choices, value: argValue, name });
     }
   }
 

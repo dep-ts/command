@@ -1,6 +1,7 @@
 # @dep/command 🛠️
 
-> A type-safe CLI command builder for Deno and Node.js, enabling easy creation of commands with arguments, options, subcommands, and handlers.
+> A type-safe CLI command builder for Deno and Node.js, enabling easy creation
+> of commands with arguments, options, subcommands, and handlers.
 
 ## [![JSR version](https://jsr.io/badges/@dep/command)](https://jsr.io/@dep/command)
 
@@ -30,7 +31,7 @@
   Then import as an ES module:
 
   ```typescript
-  import { Command } from '@dep/command';
+  import { Command } from "@dep/command";
   ```
 
 ---
@@ -39,7 +40,10 @@
 
 ### CLI 💻 <!-- if available -->
 
-This package is a library for building CLI tools. Once you've defined your command, you can run it from the command line using Deno or Node.js. For example, save the script below as `mycli.ts` and execute it with `deno run mycli.ts [args]` or `node mycli.js [args]`.
+This package is a library for building CLI tools. Once you've defined your
+command, you can run it from the command line using Deno or Node.js. For
+example, save the script below as `mycli.ts` and execute it with
+`deno run mycli.ts [args]` or `node mycli.js [args]`.
 
 Example command execution:
 
@@ -52,21 +56,21 @@ deno run mycli.ts input.txt --output output.txt
 Use the `Command` class to build and configure your CLI. Here's a basic example:
 
 ```typescript
-import { Command } from '@dep/command';
+import { Command } from "@dep/command";
 
 const cmd = new Command()
-  .name('mycli')
-  .description('A simple CLI tool example')
-  .version('1.0.0')
-  .argument('input', { description: 'Input file path' })
-  .option('--output', {
-    kind: 'value',
-    description: 'Output file path',
-    shortFlag: '-o',
+  .name("mycli")
+  .description("A simple CLI tool example")
+  .version("1.0.0")
+  .argument("input", { description: "Input file path" })
+  .option("--output", {
+    kind: "value",
+    description: "Output file path",
+    shortFlag: "-o",
   })
   .handler(({ args, options }) => {
-    console.log('Input file:', args.input);
-    console.log('Output file:', options.output);
+    console.log("Input file:", args.input);
+    console.log("Output file:", options.output);
   });
 
 try {
@@ -84,15 +88,15 @@ try {
 For more advanced usage, including subcommands:
 
 ```typescript
-import { Command } from '@dep/command';
+import { Command } from "@dep/command";
 
 const cmd = new Command()
-  .name('mycli')
-  .description('CLI with subcommands')
-  .command('sub', 'Subcommand description')
-  .argument('arg', 'Subcommand argument')
+  .name("mycli")
+  .description("CLI with subcommands")
+  .command("sub", "Subcommand description")
+  .argument("arg", "Subcommand argument")
   .handler(({ args }) => {
-    console.log('Subcommand arg:', args.arg);
+    console.log("Subcommand arg:", args.arg);
   });
 
 try {
