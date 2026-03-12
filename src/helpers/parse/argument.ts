@@ -11,12 +11,12 @@ export interface ParsedArgument {
   consumed: number;
 }
 
-export const parseCommandArgument = (
+export function parseArgument(
   tokens: string[],
-  config: Config,
+  args: Config["arguments"],
   argIndex: number,
-): ParsedArgument => {
-  const argDef = config.arguments[argIndex];
+): ParsedArgument {
+  const argDef = args[argIndex];
   const token = tokens[0];
 
   if (!argDef) {
@@ -31,7 +31,7 @@ export const parseCommandArgument = (
       argumentValue = token;
       break;
     case "variadic": {
-      argumentValue = handlerVariadic(tokens, config.subcommands);
+      argumentValue = handlerVariadic(tokens);
       break;
     }
   }
@@ -40,4 +40,4 @@ export const parseCommandArgument = (
     argument: { [kebabToCamelCase(name)]: argumentValue },
     consumed: Array.isArray(argumentValue) ? argumentValue.length : 1,
   };
-};
+}

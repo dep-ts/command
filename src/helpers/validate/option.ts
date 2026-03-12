@@ -2,18 +2,18 @@ import { CommandError } from "@/helpers/error.ts";
 
 import { type Config } from "@/helpers/utils.ts";
 
-const validateOptionFormat = (
+function validateOptionFormat(
   name: string | undefined,
   variant: "Long flag" | "Short flag",
-) => {
+) {
   if (name && !/^[a-zA-Z-][a-zA-Z0-9_-]*$/.test(name)) {
     throw new CommandError(
       `Invalid ${variant} "${name}". ${variant}s must start with a letter or hyphen and contain only letters, numbers, hyphens, or underscores.`,
     );
   }
-};
+}
 
-export const validateOptions = (options: Config["options"]) => {
+export function validateOptions(options: Config["options"]) {
   const optionNames = new Set<string>();
 
   for (const opt of options) {
@@ -48,7 +48,9 @@ export const validateOptions = (options: Config["options"]) => {
         if (!opt.choices.some((choice) => defaultValues.includes(choice))) {
           throw new CommandError(
             `Default value "${opt.default}" for option "${opt.longFlag}" must be one of: ${
-              opt.choices.join(", ")
+              opt.choices.join(
+                ", ",
+              )
             }`,
           );
         }
@@ -61,4 +63,4 @@ export const validateOptions = (options: Config["options"]) => {
       }
     }
   }
-};
+}

@@ -9,22 +9,22 @@ import {
 import { Text } from "@dep/table";
 import { $config } from "./utils.ts";
 
-const formatArgumentName = (
+function formatArgumentName(
   name: string,
   kind: CommandArgumentKind,
   optional = false,
-): string => {
+): string {
   const baseName = name.replace(/^--/, "");
   const suffix = kind === "variadic" ? "..." : "";
   const format = `${baseName}${suffix}`;
   return optional ? `[${format}]` : `<${format}>`;
-};
+}
 
-const formatOptionFlag = (
+function formatOptionFlag(
   flag: string,
   kind: CommandOptionKind,
   optional = false,
-): string => {
+): string {
   const normalizedFlag = flag.startsWith("-")
     ? flag
     : flag.length === 1
@@ -36,43 +36,41 @@ const formatOptionFlag = (
   }
 
   return normalizedFlag;
-};
+}
 
-export const showHelp = <
+export function showHelp<
   Options extends CommandOption[] = [],
   Arguments extends CommandArgument[] = [],
->(
-  {
-    arguments: args,
-    options,
-    subcommands,
-    description,
-  }: CommandConfig<Options, Arguments>,
-  commandNames: string[] = [],
-) => {
-  const printUsage = () => {
-    const commandsStr = subcommands.length > 0 ? "[command]" : "";
-    const optionsStr = options.length > 0 ? "[options]" : "";
-    const argsStr = args
+>(chains: Array<CommandConfig<Options, Arguments>>) {
+  const fullCommandName = chains.map((c) => c.name);
+  const allOptions = chains.flatMap((c) => c.options ?? []);
+  const leafCommand = chains[chains.length - 1];
+  const description = leafCommand.description;
+
+  function printUsage() {
+    const commandsStr = leafCommand.subcommands.length > 0 ? "[command]" : "";
+    const optionsStr = allOptions.length > 0 ? "[options]" : "";
+    const argsStr = leafCommand.arguments
       .map(({ name, optional, kind }) =>
         formatArgumentName(name, kind, optional)
       )
       .join(" ");
 
     console.log(
-      `\nUsage: ${commandNames.join(" ")}${argsStr ? ` ${argsStr}` : ""}${
+      `\nUsage: ${fullCommandName.join(" ")}${argsStr ? ` ${argsStr}` : ""}${
         optionsStr ? ` ${optionsStr}` : ""
       }${commandsStr ? ` ${commandsStr}` : ""}`,
     );
-  };
+  }
 
-  const printDescription = () => {
+  function printDescription() {
     if (description) {
       console.log(`\n${description}`);
     }
-  };
+  }
 
-  const printArguments = () => {
+  function printArguments() {
+    const args = chains.flatMap((c) => c.arguments || []);
     if (args.length > 0) {
       console.log("\nArguments:");
       args.forEach(({ name, description, kind, optional }) => {
@@ -83,14 +81,14 @@ export const showHelp = <
         );
       });
     }
-  };
+  }
 
-  const printOptions = () => {
-    if (options.length > 0) {
+  function printOptions() {
+    if (allOptions.length > 0) {
       console.log("\nOptions:");
       const table = new Text();
 
-      options.forEach((opt) => {
+      allOptions.forEach((opt) => {
         const normalizedLongFlag = opt.kind === "flag"
           ? formatOptionFlag(opt.longFlag, opt.kind)
           : formatOptionFlag(opt.longFlag, opt.kind, opt.optional);
@@ -115,12 +113,12 @@ export const showHelp = <
       table.setColumnWidth(1, 20);
       console.log(table.build());
     }
-  };
+  }
 
-  const printSubcommands = () => {
-    if (subcommands.length > 0) {
+  function printSubcommands() {
+    if (leafCommand.subcommands.length > 0) {
       console.log("\nCommands:");
-      subcommands.forEach((cmd) => {
+      leafCommand.subcommands.forEach((cmd) => {
         const cmdCtx = cmd[$config]();
 
         const aliases = cmdCtx.aliases.length > 0
@@ -131,7 +129,7 @@ export const showHelp = <
         );
       });
     }
-  };
+  }
 
   printUsage();
   printDescription();
@@ -139,5 +137,4 @@ export const showHelp = <
   printOptions();
   printSubcommands();
   console.log("");
-};
-// deno --allow-all test.ts url -h
+}

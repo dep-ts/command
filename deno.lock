@@ -1,15 +1,20 @@
 {
   "version": "5",
   "specifiers": {
+    "jsr:@dep/assert@^1.3.0": "1.3.0",
     "jsr:@dep/table@^1.0.1": "1.0.1"
   },
   "jsr": {
+    "@dep/assert@1.3.0": {
+      "integrity": "6561c5b22b95f9a42231b3b52dc9f6507867bb99924e2600b4172d3ce824c379"
+    },
     "@dep/table@1.0.1": {
       "integrity": "f0855dc71b9dc1b2e83930a47c2ac0295739e1a970a5de7135e7eb7f23942745"
     }
   },
   "workspace": {
     "dependencies": [
+      "jsr:@dep/assert@^1.3.0",
       "jsr:@dep/table@^1.0.1"
     ]
   }

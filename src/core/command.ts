@@ -1,12 +1,13 @@
 import { showHelp } from "@/helpers/help.ts";
-import { parseRuntime } from "@/helpers/parse/index.ts";
+import { ParsedCommand, parser } from "@/helpers/parse/main.ts";
 import { runner } from "@/helpers/runner.ts";
 import { CommandBuilder } from "./builder.ts";
+import { getDefaultTokens } from "@/helpers/token.ts";
+import { type Config } from "@/helpers/utils.ts";
 
 import type {
   CommandArgument,
   CommandHideKind,
-  CommandInput,
   CommandOption,
 } from "./types.ts";
 
@@ -26,13 +27,13 @@ import { $config } from "@/helpers/utils.ts";
  *   .description('A simple CLI tool example')
  *   .version('1.0.0')
  *   .argument('input', { description: 'Input file path' })
- *   .option('--output', { kind: 'value', description: 'Output file path', shortFlag: '-o' })
+ *   .option('--output', { description: 'Output file path', shortFlag: '-o' })
  *   .handler(({ args, options }) => {
  *     console.log('Input file:', args.input);
  *     console.log('Output file:', options.output);
  *   });
  *
- * cmd.run();
+ * await cmd.run();
  * ```
  */
 export class Command<
@@ -76,14 +77,11 @@ export class Command<
 
   /**
    * Parses the provided tokens (or default CLI arguments) into a typed CommandInput.
-   * @param tokens - Optional array of tokens to parse; defaults to process/Deno args.
-   * @returns The parsed CommandInput with typed args, options, and unparsed tokens.
+   * @param tokens - Optional array of tokens to run with; defaults to process/Deno args.
+   * @returns The parsed CommandInput with typed args, options, handled, chains, and unparsed tokens.
    */
-  parse(tokens?: string[]): CommandInput<Options, Arguments> {
-    return parseRuntime(this[$config](), tokens ?? []) as CommandInput<
-      Options,
-      Arguments
-    >;
+  parse(tokens: string[] = getDefaultTokens()): ParsedCommand {
+    return parser(this[$config]() as Config, tokens);
   }
 
   /**
@@ -91,7 +89,7 @@ export class Command<
    */
   help() {
     if (!this[$config]().hidden.help) {
-      showHelp(this[$config]());
+      showHelp([this[$config]()]);
     }
   }
 
@@ -102,7 +100,23 @@ export class Command<
    * @param tokens - Optional array of tokens to run with; defaults to process/Deno args.
    * @returns A Promise that resolves when the command execution completes.
    */
-  async run(tokens?: string[]): Promise<void> {
+  async run(tokens: string[] = getDefaultTokens()): Promise<void> {
+    // Auto-add --help / --version unless hidden
+    if (!this[$config]().hidden.help) {
+      this.option("--help", {
+        kind: "flag",
+        description: `Show help`,
+        shortFlag: "-h",
+      });
+    }
+
+    if (!this[$config]().hidden.version) {
+      this.option("--version", {
+        kind: "flag",
+        description: `Show version`,
+        shortFlag: "-v",
+      });
+    }
     await runner(this[$config](), tokens);
   }
 }

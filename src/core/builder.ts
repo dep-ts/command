@@ -122,7 +122,7 @@ export class CommandBuilder<
     config?: K extends "flag" ? Partial<
         Pick<CommandOption<L, K, O>, "kind" | "shortFlag" | "description">
       >
-      : Partial<Omit<CommandOption<L, K, O>, "shortFlag">>,
+      : Partial<CommandOption<L, K, O>>,
   ): With<[...Options, CommandOption<L, K, O>], Arguments>[Kind] {
     const option: CommandOption<L, "value", false> = {
       longFlag,

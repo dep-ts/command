@@ -38,82 +38,94 @@
 
 ## Usage 🎯
 
-### CLI 💻 <!-- if available -->
+Use the `Command` class to build and run CLI applications with arguments,
+options, and subcommands.
 
-This package is a library for building CLI tools. Once you've defined your
-command, you can run it from the command line using Deno or Node.js. For
-example, save the script below as `mycli.ts` and execute it with
-`deno run mycli.ts [args]` or `node mycli.js [args]`.
+```ts
+//cli.ts
+import { Command, CommandError } from "@dep/command";
 
-Example command execution:
-
-```bash
-deno run mycli.ts input.txt --output output.txt
-```
-
-### API 🧩
-
-Use the `Command` class to build and configure your CLI. Here's a basic example:
-
-```typescript
-import { Command } from "@dep/command";
-
-const cmd = new Command()
-  .name("mycli")
-  .description("A simple CLI tool example")
+const http = new Command()
+  .name("http")
   .version("1.0.0")
-  .argument("input", { description: "Input file path" })
-  .option("--output", {
-    kind: "value",
-    description: "Output file path",
-    shortFlag: "-o",
+  .description("A lightweight HTTP client CLI")
+  .argument("url", "The target URL for the request")
+  .option("--header", {
+    shortFlag: "-H",
+    description: 'Custom header (e.g., "Content-Type: application/json")',
+    optional: true,
+  });
+
+http.command("get", "Perform a GET request").handler(({ args, options }) => {
+  console.log(`GET ${args.url}`);
+  console.log(`Header: ${options.header}`);
+});
+
+http
+  .command("post", "Perform a POST request")
+  .option("--body", {
+    shortFlag: "-B",
+    description: "The JSON body string to send",
   })
   .handler(({ args, options }) => {
-    console.log("Input file:", args.input);
-    console.log("Output file:", options.output);
+    console.log(`POST ${args.url}`);
+    console.log(`Body: ${options.body}`);
   });
 
 try {
-  await clit.run(); // (defaults tokens Deno.args | `process.argv.slice(2)`)
+  // uses Deno.args or process.argv.slice(2)
+  await http.run();
 } catch (err) {
   if (err instanceof CommandError) {
     console.error(`\nError: ${err.message}\n`);
-    cmd.help();
-    Deno.exit(1); //or process.exit(1);
+    http.help();
+    Deno.exit(1); // or process.exit(1)
   }
   throw err;
 }
 ```
 
-For more advanced usage, including subcommands:
+### Running the CLI 💻
 
-```typescript
-import { Command } from "@dep/command";
-
-const cmd = new Command()
-  .name("mycli")
-  .description("CLI with subcommands")
-  .command("sub", "Subcommand description")
-  .argument("arg", "Subcommand argument")
-  .handler(({ args }) => {
-    console.log("Subcommand arg:", args.arg);
-  });
-
-try {
-  await clit.run(); // (defaults tokens Deno.args | `process.argv.slice(2)`)
-} catch (err) {
-  if (err instanceof CommandError) {
-    console.error(`\nError: ${err.message}\n`);
-    cmd.help();
-    Deno.exit(1); //or process.exit(1);
-  }
-  throw err;
-}
+```bash
+deno run cli.ts --help
 ```
 
-Run with `mycli sub value` to execute the subcommand.
+```text
+Usage: http <url> [options] [command]
 
----
+A lightweight HTTP client CLI
+
+Arguments:
+  <url>           The target URL for the request
+
+Options:
+--header, -H  [header]             Custom header (e.g., "Content-Type: application/json")
+--help, -h                         Show help
+--version, -v                      Show version
+
+Commands:
+  get             Perform a GET request
+  post            Perform a POST request
+```
+
+```bash
+deno run cli.ts get 'https://estarlincito.com' --header "Authorization: Kyumiu"
+```
+
+```text
+GET https://estarlincito.com
+Header: Authorization: Kyumiu
+```
+
+```bash
+deno run cli.ts post 'https://estarlincito.com' --body "user: estarlincito"
+```
+
+```text
+POST https://estarlincito.com
+Body: user: estarlincito
+```
 
 ## License 📄
 

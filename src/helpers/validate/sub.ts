@@ -1,8 +1,8 @@
 import { CommandError } from "@/helpers/error.ts";
 import { $config, type Config } from "@/helpers/utils.ts";
-import { validateConfig } from "./index.ts";
+import { validateConfig } from "./main.ts";
 
-export const validateSubcommands = (subcommands: Config["subcommands"]) => {
+export function validateSubcommands(subcommands: Config["subcommands"]) {
   const subcommandNames = new Set<string>();
 
   for (const subCmd of subcommands) {
@@ -19,4 +19,4 @@ export const validateSubcommands = (subcommands: Config["subcommands"]) => {
     subcommandNames.add(subConfig.name);
     validateConfig(subConfig);
   }
-};
+}

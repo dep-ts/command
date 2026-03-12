@@ -2,7 +2,7 @@ import { CommandError } from "@/helpers/error.ts";
 import { type Config } from "@/helpers/utils.ts";
 import { checkNameFormat } from "./name.ts";
 
-export const validateArguments = (args: Config["arguments"]) => {
+export function validateArguments(args: Config["arguments"]) {
   const argNames = new Set<string>();
   for (const arg of args) {
     if (!arg.name) throw new CommandError("Argument name is required");
@@ -23,7 +23,9 @@ export const validateArguments = (args: Config["arguments"]) => {
       if (!arg.choices.some((choice) => defaultValues.includes(choice))) {
         throw new CommandError(
           `Default value "${arg.default}" for argument "${arg.name}" must be one of: ${
-            arg.choices.join(", ")
+            arg.choices.join(
+              ", ",
+            )
           }`,
         );
       }
@@ -41,4 +43,4 @@ export const validateArguments = (args: Config["arguments"]) => {
       );
     }
   }
-};
+}

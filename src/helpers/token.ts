@@ -1,12 +1,15 @@
-// deno-lint-ignore-file ban-ts-comment no-process-global
+import process from "node:process";
 
-export const getDefaultTokens = (): string[] => {
-  if (typeof Deno !== "undefined") {
-    return Deno.args;
-    //@ts-ignore
-  } else if (typeof process !== "undefined") {
-    //@ts-ignore
-    return process.argv.slice(2) as string[];
+export function getDefaultTokens(): string[] {
+  // Check Deno first
+  if ("Deno" in globalThis) {
+    return globalThis.Deno.args;
   }
+
+  // Check Node.js process
+  if (typeof process !== "undefined" && process.argv) {
+    return process.argv.slice(2);
+  }
+
   return [];
-};
+}
